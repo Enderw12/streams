@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'dart:math';
 
+import 'bloc.dart';
+
 void main() {
   final bloc = MyBloc();
 
@@ -15,8 +17,8 @@ void main() {
     bloc.add(event);
   });
 
-  bloc.stream.listen((event) {
-    print(event.title);
+  bloc.stream.listen((state) {
+    print(state.title);
   });
 }
 
@@ -27,28 +29,6 @@ Stream<int> fc() async* {
     await Future.delayed(Duration(milliseconds: i));
     yield i;
   }
-}
-
-abstract class BlocState {}
-
-abstract class BlocEvent {}
-
-class Bloc<BlocEvent, BlocState> {
-  BlocState mapEventToState(BlocEvent event) {
-    // return BlocState();
-  }
-
-  final _controller = StreamController<BlocEvent>();
-
-  StreamSink<BlocEvent> get event_sink => _controller.sink;
-
-  void add(BlocEvent event) {
-    event_sink.add(event);
-  }
-
-  Stream<BlocState> get stream => _controller.stream
-      .map((event) => mapEventToState(event))
-      .asBroadcastStream();
 }
 
 class MyState extends BlocState {
@@ -62,6 +42,8 @@ class MyEvent extends BlocEvent {
 }
 
 class MyBloc extends Bloc<MyEvent, MyState> {
+  MyBloc() : super(MyEvent(0));
+
   @override
   MyState mapEventToState(MyEvent event) {
     return MyState('State #${event.turn}');
